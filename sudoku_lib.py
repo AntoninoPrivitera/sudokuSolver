@@ -1,22 +1,23 @@
-import numpy
+from typing import List
 import math
 from z3 import *
 
 GRID_SIZE = [4, 9, 16, 25]
 
-def __CheckGridSize(gridSize):
+def __CheckGridSize(gridSize: int):
     if(gridSize not in GRID_SIZE):
         raise ValueError('grid size not accepted')
 
-def __CheckGridValue(gridSize, val):
+def __CheckGridValue(gridSize: int, val: int):
     if(val < 1 or val > gridSize):
         raise ValueError('grid value not accepted')
 
-def ImportSudokuData(filePath):
+
+def ImportSudokuData(filePath: str):
     f = open(filePath, "r")
     gridSize = int(f.readline())
     __CheckGridSize(gridSize)
-    grid = numpy.zeros((gridSize, gridSize), dtype=int)
+    grid = [ [ 0 for j in range(gridSize) ] for i in range(gridSize) ]
     for i in range(gridSize):
         row = f.readline().split(" ")
         for j in range(gridSize):
@@ -30,7 +31,7 @@ def ImportSudokuData(filePath):
     f.close()
     return gridSize, grid
 
-def PrintSudokuInfo(gridSize, grid):
+def PrintSudokuInfo(gridSize: int, grid: List[List[int]]):
     __CheckGridSize(gridSize)
     subGridSize = int(math.sqrt(gridSize))
     for i in range(gridSize):
@@ -39,7 +40,7 @@ def PrintSudokuInfo(gridSize, grid):
             print(val, end= " " if (j+1)%subGridSize else "  ")
         print(end= "\n" if (i+1)%subGridSize else "\n\n")
 
-def SudokuSolveZ3(gridSize, grid):
+def SudokuSolveZ3(gridSize: int, grid: List[List[int]]):
     __CheckGridSize(gridSize)
     subGridSize = int(math.sqrt(gridSize))
 
@@ -60,14 +61,13 @@ def SudokuSolveZ3(gridSize, grid):
     sudoku_c = cells_c + rows_c + cols_c + sq_c
     # instance constraints
     instance_c = [ If(grid[i][j] == 0, True, X[i][j] == grid[i][j]) for i in range(gridSize) for j in range(gridSize) ]
-
+    
     #SOLVER
     s = Solver()
     s.add(sudoku_c + instance_c)
     if s.check() == sat: #s.check() returns "sat" if the solver found a solution
         m = s.model() #returns the solution
-        r = [ [ m.evaluate(X[i][j]) for j in range(grid) ]
-            for i in range(grid) ]
+        r = [ [ m.evaluate(X[i][j]) for j in range(gridSize) ] for i in range(gridSize) ]
         print_matrix(r)
     else:
         print("failed to solve")
