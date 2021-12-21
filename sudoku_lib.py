@@ -1,6 +1,6 @@
 from typing import List
 import math
-from z3 import *
+from z3 import * #install it through the command: pip install z3-solver
 
 GRID_SIZE = [4, 9, 16, 25]
 
@@ -45,26 +45,20 @@ def SudokuSolveZ3(gridSize: int, grid: List[List[int]]):
     subGridSize = int(math.sqrt(gridSize))
 
     #MY VARIABLES
-    # 9x9 matrix of integer variables
-    X = [ [ Int(f"x_{i+1}_{j+1}") for j in range(gridSize) ] for i in range(gridSize) ]
+    X = [ [ Int(f"x_{i+1}_{j+1}") for j in range(gridSize) ] for i in range(gridSize) ] # my matrix is composed by gridSize*gridSize variables
 
     #CONSTRAINTS
-    # each cell contains a value in {1, ..., gridSize}
-    cells_c = [ And(1 <= X[i][j], X[i][j] <= gridSize) for i in range(gridSize) for j in range(gridSize) ]
-    # each row contains a digit at most once
-    rows_c = [ Distinct(X[i]) for i in range(gridSize) ] #distinct of rows (arrays)
-    # each column contains a digit at most once
-    cols_c = [ Distinct([ X[i][j] for i in range(gridSize) ]) for j in range(gridSize) ] #distinct of columns (I create the arrays)
-    # each subGridSizexsubGridSize square contains a digit at most once
-    sq_c = [ Distinct([ X[subGridSize*i0 + i][subGridSize*j0 + j] for i in range(subGridSize) for j in range(subGridSize) ]) for i0 in range(subGridSize) for j0 in range(subGridSize) ]
-    # sudoku constraints
-    sudoku_c = cells_c + rows_c + cols_c + sq_c
-    # instance constraints
-    instance_c = [ If(grid[i][j] == 0, True, X[i][j] == grid[i][j]) for i in range(gridSize) for j in range(gridSize) ]
+    cells = [ And(1 <= X[i][j], X[i][j] <= gridSize) for i in range(gridSize) for j in range(gridSize) ] # each cell has a value  between 1 and gridSize
+    rows = [ Distinct(X[i]) for i in range(gridSize) ] # each number is unique for each row
+    columns = [ Distinct([ X[i][j] for i in range(gridSize) ]) for j in range(gridSize) ] # each number is unique for each column
     
+    submatrix = [ Distinct([ X[subGridSize*i0 + i][subGridSize*j0 + j] for i in range(subGridSize) for j in range(subGridSize) ]) for i0 in range(subGridSize) for j0 in range(subGridSize) ] # each submatrix subGridSizexsubGridSize has each number unique
+    instance = [ If(grid[i][j] == 0, True, X[i][j] == grid[i][j]) for i in range(gridSize) for j in range(gridSize) ] # problem instance constraints
+    sudoku = cells + rows + columns + submatrix + instance # sudoku constraints
+
     #SOLVER
     s = Solver()
-    s.add(sudoku_c + instance_c)
+    s.add(sudoku)
     if s.check() == sat: #s.check() returns "sat" if the solver found a solution
         m = s.model() #returns the solution
         r = [ [ m.evaluate(X[i][j]) for j in range(gridSize) ] for i in range(gridSize) ]
