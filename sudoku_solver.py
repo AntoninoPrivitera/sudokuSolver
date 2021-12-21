@@ -9,19 +9,23 @@ while True:
     match value:
         case "1":
             print("You selected 1 to solve a sudoku from a file")
-            filename = input("Please add the file name which contains your sudoku: ")
-            gridSize, grid = ImportSudokuData("sudoku_data.txt")
+            filename = input("Please add the file name which contains your sudoku (empty if you want to use sudoku_data.txt as default): ")
+            
+            try:
+                gridSize, grid = ImportSudokuData("sudoku_data.txt" if filename == "" else filename)
 
-            print("your file contains the following sudoku to solve:")
-            PrintSudokuInfo(gridSize, grid)
+                print("your file contains the following sudoku to solve:")
+                PrintSudokuInfo(gridSize, grid)
 
-            solver = input("Which solver do you want to use? (1 - z3, 2 - backtracking): ")
-            if solver == "1":
-                SudokuSolveZ3(gridSize, grid)
-            elif solver == "2":
-                SudokuSolveBacktracking(gridSize, grid)
-            else:
-                print("Error in the input to select the solver")
+                solver = input("Which solver do you want to use? (1 - z3, 2 - backtracking): ")
+                if solver == "1":
+                    SudokuSolveZ3(gridSize, grid)
+                elif solver == "2":
+                    SudokuSolveBacktracking(gridSize, grid)
+                else:
+                    print("Error in the input to select the solver")
+            except:
+                print("Exception occurred because of sudoku wrong format or file does not exist")
         case "2":
             print("You selected 2 to generate a sudoku")
         case "3":
