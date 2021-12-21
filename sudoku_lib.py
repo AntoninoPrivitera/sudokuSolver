@@ -61,7 +61,14 @@ def SudokuSolveZ3(gridSize: int, grid: List[List[int]]):
     s.add(sudoku)
     if s.check() == sat: #s.check() returns "sat" if the solver found a solution
         m = s.model() #returns the solution
-        r = [ [ m.evaluate(X[i][j]) for j in range(gridSize) ] for i in range(gridSize) ]
-        print_matrix(r)
+        print("your solution is:")
+        gridSolution = [ [ m[X[i][j]].as_long() for j in range(gridSize) ] for i in range(gridSize) ]  # as_long() allows to get the value as int type
+        PrintSudokuInfo(gridSize, gridSolution)
     else:
-        print("failed to solve")
+        print("impossible to find a solution!")
+
+
+def SudokuSolveBacktracking(gridSize: int, grid: List[List[int]]):
+    __CheckGridSize(gridSize)
+    subGridSize = int(math.sqrt(gridSize))
+    print("impossible to find a solution!")
