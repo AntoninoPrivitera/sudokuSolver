@@ -24,8 +24,8 @@ while True:
                     SudokuSolveBacktracking(gridSize, grid)
                 else:
                     print("Error in the input to select the solver")
-            except:
-                print("Exception occurred because of sudoku wrong format or file does not exist")
+            except Exception as e:
+                print(e)
         case "2":
             print("You selected 2 to generate a sudoku")
         case "3":

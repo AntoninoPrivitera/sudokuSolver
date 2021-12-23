@@ -32,11 +32,12 @@ def ImportSudokuData(filePath: str):
     return gridSize, grid
 
 def PrintSudokuInfo(gridSize: int, grid: List[List[int]]):
+    n_digits = len(str(gridSize))
     __CheckGridSize(gridSize)
     subGridSize = int(math.sqrt(gridSize))
     for i in range(gridSize):
         for j in range(gridSize):
-            val = grid[i][j] if grid[i][j] > 0 else "-"
+            val = str(grid[i][j]).zfill(n_digits) if grid[i][j] > 0 else "-"*n_digits
             print(val, end= " " if (j+1)%subGridSize else "  ")
         print(end= "\n" if (i+1)%subGridSize else "\n\n")
 
