@@ -1,6 +1,7 @@
 from typing import List
 import math
 from z3 import * #install it through the command: pip install z3-solver
+import time
 
 GRID_SIZE = [4, 9, 16, 25]
 
@@ -19,7 +20,7 @@ def ImportSudokuData(filePath: str):
     __CheckGridSize(gridSize)
     grid = [ [ 0 for j in range(gridSize) ] for i in range(gridSize) ]
     for i in range(gridSize):
-        row = f.readline().split(" ")
+        row = f.readline().rstrip('\n').split(" ")
         for j in range(gridSize):
             col = row[j]
             if(col.isdigit()):
@@ -41,7 +42,11 @@ def PrintSudokuInfo(gridSize: int, grid: List[List[int]]):
             print(val, end= " " if (j+1)%subGridSize else "  ")
         print(end= "\n" if (i+1)%subGridSize else "\n\n")
 
+
+
 def SudokuSolveZ3(gridSize: int, grid: List[List[int]]):
+    start_time = time.time()
+
     __CheckGridSize(gridSize)
     subGridSize = int(math.sqrt(gridSize))
 
@@ -68,8 +73,66 @@ def SudokuSolveZ3(gridSize: int, grid: List[List[int]]):
     else:
         print("impossible to find a solution!")
 
+    print("--- computation time: %s seconds ---" % (time.time() - start_time))
+
 
 def SudokuSolveBacktracking(gridSize: int, grid: List[List[int]]):
+    start_time = time.time()
+
     __CheckGridSize(gridSize)
     subGridSize = int(math.sqrt(gridSize))
-    print("impossible to find a solution!")
+
+    result = SudokuSolveBacktrackingRecursive(gridSize, grid, 0 , 0)
+    if result:
+        PrintSudokuInfo(gridSize, grid)
+    else:
+        print("impossible to find a solution!")
+
+    print("--- computation time: %s seconds ---" % (time.time() - start_time))
+
+
+def SudokuSolveBacktrackingRecursive(gridSize: int, grid: List[List[int]], x: int, y: int):
+    i = x
+    j = y
+    while i < gridSize:
+        while j < gridSize:
+            if(grid[i][j] == 0):
+                for val in range(1, gridSize+1):
+                    if __checkSudokuConditionBacktracking(gridSize, grid, i, j, val):
+                        grid[i][j] = val
+                        next_i = i if j < gridSize - 1 else i+1
+                        next_j = (j+1)%gridSize
+                        result = SudokuSolveBacktrackingRecursive(gridSize, grid, next_i, next_j)
+                        if result:
+                            return True
+                grid[i][j] = 0
+                return False
+            j += 1
+        i += 1
+        j = 0
+    
+    return True
+
+
+def __checkSudokuConditionBacktracking(gridSize: int, grid: List[List[int]], x, y, val):
+    subGridSize = int(math.sqrt(gridSize))
+
+    #check row rule
+    for i in range(0, gridSize):
+        if grid[i][y] == val:
+            return False
+
+    #check column rule
+    for j in range(0, gridSize):
+        if grid[x][j] == val:
+            return False
+    
+    #check subgrid rule
+    firstRow = math.floor(x/subGridSize) * subGridSize
+    firstCol = math.floor(y/subGridSize) * subGridSize
+    for i in range(firstRow, firstRow + subGridSize):
+        for j in range(firstCol, firstCol + subGridSize):
+            if grid[i][j] == val:
+                return False
+
+    return True
