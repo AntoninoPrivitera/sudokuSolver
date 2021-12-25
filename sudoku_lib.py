@@ -82,9 +82,10 @@ def SudokuSolveBacktracking(gridSize: int, grid: List[List[int]]):
     __CheckGridSize(gridSize)
     subGridSize = int(math.sqrt(gridSize))
 
-    result = SudokuSolveBacktrackingRecursive(gridSize, grid, 0 , 0)
+    grid_sol = copy.deepcopy(grid) #I duplicate my grid in order to not make changes on the original one
+    result = SudokuSolveBacktrackingRecursive(gridSize, grid_sol, 0 , 0)
     if result:
-        PrintSudokuInfo(gridSize, grid)
+        PrintSudokuInfo(gridSize, grid_sol)
     else:
         print("impossible to find a solution!")
 
