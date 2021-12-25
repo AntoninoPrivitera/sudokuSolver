@@ -33,13 +33,18 @@ while True:
             print("2 - MEDIUM")
             print("3 - HARD")
             input_difficulty = input("Please select your difficulty: ")
-
             try:
                 difficulty = int(input_difficulty)
                 if difficulty < 1 or difficulty > 2:
                     print("Error in the input to select the difficulty")
                 else:
-                    GenerateSudoku(9, Difficulty(difficulty))
+                    print("Grid size available:")
+                    print("4 - 4x4")
+                    print("9 - 9x9")
+                    print("16 - 16x16")
+                    print("25 - 25x25")
+                    input_gridSize = input("Choose the grid size:")
+                    GenerateSudoku(int(input_gridSize), Difficulty(difficulty))
             except Exception as e:
                 print(e)
 

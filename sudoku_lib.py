@@ -154,4 +154,10 @@ def __checkSudokuConditionBacktracking(gridSize: int, grid: List[List[int]], x, 
 
 
 def GenerateSudoku(gridSize: int, difficulty: Difficulty):
-    print(difficulty)
+    __CheckGridSize(gridSize)
+    grid = [ [ 0 for j in range(gridSize) ] for i in range(gridSize) ]
+    print(f"Sudoku with grid size {gridSize} and difficulty {difficulty.name}")
+    print("Your sudoku is:")
+    PrintSudokuInfo(gridSize, grid)
+    print("Your sudoku in file format is:")
+    PrintSudokuInfoFile(gridSize, grid)
