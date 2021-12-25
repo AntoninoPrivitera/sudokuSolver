@@ -105,6 +105,8 @@ def SudokuSolveBacktracking(gridSize: int, grid: List[List[int]]):
 
     print("--- computation time: %s seconds ---" % (time.time() - start_time))
 
+    return result
+
 
 def SudokuSolveBacktrackingRecursive(gridSize: int, grid: List[List[int]], x: int, y: int):
     i = x
@@ -172,8 +174,38 @@ def GenerateSudoku(gridSize: int, difficulty: Difficulty):
                 values_available.remove(val)
         values_available = list(range(1, gridSize+1))
 
+    #generate other cells if possible
+    _GenerateSudokuGridCellsRecursive(gridSize, grid, 0, 0)
 
     print("Your sudoku is:")
     PrintSudokuInfo(gridSize, grid)
     print("Your sudoku in file format is:")
     PrintSudokuInfoFile(gridSize, grid)
+
+def _GenerateSudokuGridCellsRecursive(gridSize: int, grid: List[List[int]], x: int, y: int):
+    i = x
+    j = y
+    while i < gridSize:
+        while j < gridSize:
+            if(grid[i][j] == 0):
+                val = random.randint(1, gridSize)
+
+                if __checkSudokuConditionBacktracking(gridSize, grid, i, j, val):
+                    grid[i][j] = val
+
+                    grid_sol = copy.deepcopy(grid) #I duplicate my grid in order to not make changes on the original one
+                    result = SudokuSolveBacktrackingRecursive(gridSize, grid_sol, 0 , 0)
+
+                    if(result):
+                        next_i = i if j < gridSize - 1 else i+1
+                        next_j = (j+1)%gridSize                        
+                        _GenerateSudokuGridCellsRecursive(gridSize, grid, next_i, next_j)
+                        return
+                    
+                    grid[i][j] = 0
+            j += 1
+        i += 1
+        j = 0
+
+def _FindNumberOfSolutions():
+    print(" ")
