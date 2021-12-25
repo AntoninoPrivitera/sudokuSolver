@@ -3,6 +3,7 @@ import math
 from z3 import * #install it through the command: pip install z3-solver
 import time
 from enum import Enum
+import random
 
 class Difficulty(Enum):
     EASY = 1
@@ -94,7 +95,6 @@ def SudokuSolveBacktracking(gridSize: int, grid: List[List[int]]):
     start_time = time.time()
 
     __CheckGridSize(gridSize)
-    subGridSize = int(math.sqrt(gridSize))
 
     grid_sol = copy.deepcopy(grid) #I duplicate my grid in order to not make changes on the original one
     result = SudokuSolveBacktrackingRecursive(gridSize, grid_sol, 0 , 0)
@@ -155,8 +155,24 @@ def __checkSudokuConditionBacktracking(gridSize: int, grid: List[List[int]], x, 
 
 def GenerateSudoku(gridSize: int, difficulty: Difficulty):
     __CheckGridSize(gridSize)
-    grid = [ [ 0 for j in range(gridSize) ] for i in range(gridSize) ]
     print(f"Sudoku with grid size {gridSize} and difficulty {difficulty.name}")
+
+    subGridSize = int(math.sqrt(gridSize))
+    grid = [ [ 0 for j in range(gridSize) ] for i in range(gridSize) ]
+
+    #generate diagonal values (each element in the diagonal is independent)
+    values_available = list(range(1, gridSize+1))
+    for subgridIndex in range(0, subGridSize):
+        diagonalFirstCell = subgridIndex*subGridSize
+        diagonalLastCell = diagonalFirstCell + subGridSize
+        for i in range(diagonalFirstCell,  diagonalLastCell):
+            for j in range(diagonalFirstCell, diagonalLastCell):
+                val = random.choice(values_available)
+                grid[i][j] = val
+                values_available.remove(val)
+        values_available = list(range(1, gridSize+1))
+
+
     print("Your sudoku is:")
     PrintSudokuInfo(gridSize, grid)
     print("Your sudoku in file format is:")
