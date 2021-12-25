@@ -1,4 +1,4 @@
-from sudoku_lib import ImportSudokuData, PrintSudokuInfo, SudokuSolveZ3, SudokuSolveBacktracking;
+from sudoku_lib import Difficulty, ImportSudokuData, PrintSudokuInfo, SudokuSolveZ3, SudokuSolveBacktracking, GenerateSudoku;
 
 while True:
     print("COMMANDS:")
@@ -28,6 +28,22 @@ while True:
                 print(e)
         case "2":
             print("You selected 2 to generate a sudoku")
+            print("Difficulties:")
+            print("1 - EASY")
+            print("2 - MEDIUM")
+            print("3 - HARD")
+            input_difficulty = input("Please select your difficulty: ")
+
+            try:
+                difficulty = int(input_difficulty)
+                if difficulty < 1 or difficulty > 2:
+                    print("Error in the input to select the difficulty")
+                else:
+                    GenerateSudoku(9, Difficulty(difficulty))
+            except Exception as e:
+                print(e)
+
+            
         case "3":
             print("You selected 3 to exit")
             break

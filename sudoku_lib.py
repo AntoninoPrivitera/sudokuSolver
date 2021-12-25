@@ -2,6 +2,12 @@ from typing import List
 import math
 from z3 import * #install it through the command: pip install z3-solver
 import time
+from enum import Enum
+
+class Difficulty(Enum):
+    EASY = 1
+    MEDIUM = 2
+    HARD = 3
 
 GRID_SIZE = [4, 9, 16, 25]
 
@@ -41,6 +47,14 @@ def PrintSudokuInfo(gridSize: int, grid: List[List[int]]):
             val = str(grid[i][j]).zfill(n_digits) if grid[i][j] > 0 else "-"*n_digits
             print(val, end= " " if (j+1)%subGridSize else "  ")
         print(end= "\n" if (i+1)%subGridSize else "\n\n")
+
+def PrintSudokuInfoFile(gridSize: int, grid: List[List[int]]):
+    __CheckGridSize(gridSize)
+    print(gridSize)
+    for i in range(gridSize):
+        for j in range(gridSize):
+            val = grid[i][j] if grid[i][j] > 0 else "_"
+            print(val, end= " " if j != gridSize-1 else "\n")
 
 
 
@@ -137,3 +151,7 @@ def __checkSudokuConditionBacktracking(gridSize: int, grid: List[List[int]], x, 
                 return False
 
     return True
+
+
+def GenerateSudoku(gridSize: int, difficulty: Difficulty):
+    print(difficulty)
