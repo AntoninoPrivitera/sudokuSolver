@@ -97,7 +97,7 @@ def SudokuSolveBacktracking(gridSize: int, grid: List[List[int]]):
     __CheckGridSize(gridSize)
 
     grid_sol = copy.deepcopy(grid) #I duplicate my grid in order to not make changes on the original one
-    result = SudokuSolveBacktrackingRecursive(gridSize, grid_sol, 0 , 0)
+    result = __SudokuSolveBacktrackingRecursive(gridSize, grid_sol, 0 , 0)
     if result:
         PrintSudokuInfo(gridSize, grid_sol)
     else:
@@ -108,7 +108,7 @@ def SudokuSolveBacktracking(gridSize: int, grid: List[List[int]]):
     return result
 
 
-def SudokuSolveBacktrackingRecursive(gridSize: int, grid: List[List[int]], x: int, y: int):
+def __SudokuSolveBacktrackingRecursive(gridSize: int, grid: List[List[int]], x: int, y: int):
     i = x
     j = y
     while i < gridSize:
@@ -119,7 +119,7 @@ def SudokuSolveBacktrackingRecursive(gridSize: int, grid: List[List[int]], x: in
                         grid[i][j] = val
                         next_i = i if j < gridSize - 1 else i+1
                         next_j = (j+1)%gridSize
-                        result = SudokuSolveBacktrackingRecursive(gridSize, grid, next_i, next_j)
+                        result = __SudokuSolveBacktrackingRecursive(gridSize, grid, next_i, next_j)
                         if result:
                             return True
                 grid[i][j] = 0
@@ -193,7 +193,7 @@ def _FillSudokuGridCellsRecursive(gridSize: int, grid: List[List[int]], x: int, 
                 for val in values_available:
                     if __checkSudokuConditionBacktracking(gridSize, grid, i, j, val):
                         grid[i][j] = val
-                        result = SudokuSolveBacktrackingRecursive(gridSize, copy.deepcopy(grid), 0 , 0) #copy.deepcopy(grid) used to duplicate my grid in order to not make changes on the original one
+                        result = __SudokuSolveBacktrackingRecursive(gridSize, copy.deepcopy(grid), 0 , 0) #copy.deepcopy(grid) used to duplicate my grid in order to not make changes on the original one
 
                         if(result):
                             next_i = i if j < gridSize - 1 else i+1
