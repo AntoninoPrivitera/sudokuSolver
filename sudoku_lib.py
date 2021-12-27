@@ -214,9 +214,8 @@ def __FillSudokuGridCellsRecursive(gridSize: int, grid: List[List[int]], x: int,
                         if(result):
                             next_i = i if j < gridSize - 1 else i+1
                             next_j = (j+1)%gridSize                        
-                            #if __FillSudokuGridCellsRecursive(gridSize, grid, next_i, next_j):
-                            #    return True
-                            return __FillSudokuGridCellsRecursive(gridSize, grid, next_i, next_j)
+                            if __FillSudokuGridCellsRecursive(gridSize, grid, next_i, next_j):
+                                return True
                 grid[i][j] = 0
                 return False
             j += 1
