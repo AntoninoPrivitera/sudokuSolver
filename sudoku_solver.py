@@ -35,7 +35,7 @@ while True:
             input_difficulty = input("Please select your difficulty: ")
             try:
                 difficulty = int(input_difficulty)
-                if difficulty < 1 or difficulty > 2:
+                if difficulty < 1 or difficulty > 3:
                     print("Error in the input to select the difficulty")
                 else:
                     print("Grid size available:")
