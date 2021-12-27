@@ -169,30 +169,34 @@ def GenerateSudoku(gridSize: int, difficulty: Difficulty):
     __CheckGridSize(gridSize)
     print(f"Sudoku with grid size {gridSize} and difficulty {difficulty.name}")
 
-    subGridSize = int(math.sqrt(gridSize))
     grid = [ [ 0 for j in range(gridSize) ] for i in range(gridSize) ]
 
-    #generate diagonal values (each element in the diagonal is independent)
-    values_available = list(range(1, gridSize+1))
-    for subgridIndex in range(0, subGridSize):
-        diagonalFirstCell = subgridIndex*subGridSize
-        diagonalLastCell = diagonalFirstCell + subGridSize
-        for i in range(diagonalFirstCell,  diagonalLastCell):
-            for j in range(diagonalFirstCell, diagonalLastCell):
-                val = random.choice(values_available)
-                grid[i][j] = val
-                values_available.remove(val)
-        values_available = list(range(1, gridSize+1))
+    __FillIndependedSudokuSubGrids(gridSize, grid)
 
     #generate other cells if possible
-    gridSol = __SudokuZ3Solver(gridSize, grid)
+    grid = __SudokuZ3Solver(gridSize, grid)
     #__SudokuSolveBacktrackingRecursive(gridSize, grid, 0, 0, True)
     #__FillSudokuGridCellsRecursive(gridSize, grid, 0, 0)
     #__RemoveSudokuGridCells(gridSize, grid, difficulty)
     print("Your sudoku is:")
-    PrintSudokuInfo(gridSize, gridSol)
+    PrintSudokuInfo(gridSize, grid)
     print("Your sudoku in file format is:")
-    PrintSudokuInfoFile(gridSize, gridSol)
+    PrintSudokuInfoFile(gridSize, grid)
+
+def __FillIndependedSudokuSubGrids(gridSize: int, grid: List[List[int]]):
+    subGridSize = int(math.sqrt(gridSize))
+    colSubGridIndex = list(range(0, subGridSize))
+    random.shuffle(colSubGridIndex)
+
+    for subgridRowIndex in range(0, subGridSize):
+        values_available = list(range(1, gridSize+1))
+        firstRow = subgridRowIndex*subGridSize
+        firstCol = colSubGridIndex[subgridRowIndex]*subGridSize
+        for i in range(firstRow,  firstRow+subGridSize):
+            for j in range(firstCol, firstCol+subGridSize):
+                val = random.choice(values_available)
+                grid[i][j] = val
+                values_available.remove(val)     
 
 def __FillSudokuGridCellsRecursive(gridSize: int, grid: List[List[int]], x: int, y: int):
     values_available = list(range(1, gridSize+1))

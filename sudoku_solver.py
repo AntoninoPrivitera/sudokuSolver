@@ -6,7 +6,7 @@ while True:
     print("2 - generate a sudoku")
     print("3 - exit")
     value = input("Please enter a number to run the command: ")
-    match value:
+    match value: #required python 3.10 or newer
         case "1":
             print("You selected 1 to solve a sudoku from a file")
             filename = input("Please add the file name which contains your sudoku (empty if you want to use sudoku_data.txt as default): ")
