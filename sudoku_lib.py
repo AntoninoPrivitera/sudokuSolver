@@ -223,8 +223,10 @@ def __FillSudokuGridCellsRecursive(gridSize: int, grid: List[List[int]], x: int,
         j = 0
     return True
 
-def __FindNumberOfSolutions():
-    print(" ")
+def __FindNumberOfSolutions(gridSize: int, grid: List[List[int]]):
+    for i in range(0, gridSize):
+        for j in range(0, gridSize):
+            print("")
 
 def __RemoveSudokuGridCells(gridSize: int, grid: List[List[int]], difficulty: Difficulty):
     cells = list(range(0, gridSize*gridSize))

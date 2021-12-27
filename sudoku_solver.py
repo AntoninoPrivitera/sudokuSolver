@@ -48,7 +48,7 @@ while True:
             print(e)
 
             
-    elif "3":
+    elif value == "3":
         print("You selected 3 to exit")
         break
     else:
