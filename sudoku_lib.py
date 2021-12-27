@@ -175,37 +175,45 @@ def GenerateSudoku(gridSize: int, difficulty: Difficulty):
         values_available = list(range(1, gridSize+1))
 
     #generate other cells if possible
-    _GenerateSudokuGridCellsRecursive(gridSize, grid, 0, 0)
-
+    _FillSudokuGridCellsRecursive(gridSize, grid, 0, 0)
+    _removeSudokuGridCells(gridSize, grid, difficulty)
     print("Your sudoku is:")
     PrintSudokuInfo(gridSize, grid)
     print("Your sudoku in file format is:")
     PrintSudokuInfoFile(gridSize, grid)
 
-def _GenerateSudokuGridCellsRecursive(gridSize: int, grid: List[List[int]], x: int, y: int):
+def _FillSudokuGridCellsRecursive(gridSize: int, grid: List[List[int]], x: int, y: int):
+    values_available = list(range(1, gridSize+1))
+    random.shuffle(values_available)
     i = x
     j = y
     while i < gridSize:
         while j < gridSize:
             if(grid[i][j] == 0):
-                val = random.randint(1, gridSize)
+                for val in values_available:
+                    if __checkSudokuConditionBacktracking(gridSize, grid, i, j, val):
+                        grid[i][j] = val
+                        result = SudokuSolveBacktrackingRecursive(gridSize, copy.deepcopy(grid), 0 , 0) #copy.deepcopy(grid) used to duplicate my grid in order to not make changes on the original one
 
-                if __checkSudokuConditionBacktracking(gridSize, grid, i, j, val):
-                    grid[i][j] = val
-
-                    grid_sol = copy.deepcopy(grid) #I duplicate my grid in order to not make changes on the original one
-                    result = SudokuSolveBacktrackingRecursive(gridSize, grid_sol, 0 , 0)
-
-                    if(result):
-                        next_i = i if j < gridSize - 1 else i+1
-                        next_j = (j+1)%gridSize                        
-                        _GenerateSudokuGridCellsRecursive(gridSize, grid, next_i, next_j)
-                        return
-                    
-                    grid[i][j] = 0
+                        if(result):
+                            next_i = i if j < gridSize - 1 else i+1
+                            next_j = (j+1)%gridSize                        
+                            if _FillSudokuGridCellsRecursive(gridSize, grid, next_i, next_j):
+                                return True
+                grid[i][j] = 0
+                return False
             j += 1
         i += 1
         j = 0
+    return True
 
 def _FindNumberOfSolutions():
+    print(" ")
+
+def _removeSudokuGridCells(gridSize: int, grid: List[List[int]], difficulty: Difficulty):
+    cells = list(range(0, gridSize*gridSize))
+    random.shuffle(cells)
+    for cell in cells:
+        row = math.floor(cell/gridSize)
+        col = cell % gridSize
     print(" ")
