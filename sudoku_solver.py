@@ -1,4 +1,4 @@
-from sudoku_lib import Difficulty, ImportSudokuData, PrintSudokuInfo, SudokuSolveZ3, SudokuSolveBacktracking, GenerateSudoku;
+from sudoku_lib import ImportSudokuData, PrintSudokuInfo, PrintSudokuInfoFile, SudokuSolveZ3, SudokuSolveBacktracking, GenerateSudoku;
 
 while True:
     print("COMMANDS:")
@@ -22,28 +22,35 @@ while True:
             elif solver == "2":
                 SudokuSolveBacktracking(gridSize, grid)
             else:
-                print("Error in the input to select the solver")
+                raise ValueError("Error in the input to select the solver")
         except Exception as e:
             print(e)
     elif value == "2":
         print("You selected 2 to generate a sudoku")
-        print("Difficulties:")
-        print("1 - EASY")
-        print("2 - MEDIUM")
-        print("3 - HARD")
-        input_difficulty = input("Please select your difficulty: ")
-        try:
-            difficulty = int(input_difficulty)
-            if difficulty < 1 or difficulty > 3:
-                print("Error in the input to select the difficulty")
-            else:
-                print("Grid size available:")
-                print("4 - 4x4")
-                print("9 - 9x9")
-                print("16 - 16x16")
-                print("25 - 25x25")
-                input_gridSize = input("Choose the grid size:")
-                GenerateSudoku(int(input_gridSize), Difficulty(difficulty))
+        try:            
+            print("Choose a solver to fill your sudoku")
+            inputFillerType = input("Do you want to use z3 (1) or backtracking (2)? ")
+            if inputFillerType != "1" and inputFillerType != "2":
+                raise ValueError('Error in the input to select solver as filler')
+
+            print("Grid size available:")
+            print("4 - 4x4")
+            print("9 - 9x9")
+            print("16 - 16x16")
+            print("25 - 25x25")
+            gridSize = int(input("Choose the grid size:"))
+            gridsCellsRemoved = GenerateSudoku(gridSize, True if inputFillerType == "1" else False)
+            numberOfCellsRemovedMax = len(gridsCellsRemoved)
+            print(f"Number of cells removed are {numberOfCellsRemovedMax} after 5 attempts.")
+            inputCellsChosen = int(input(f"How many cells do you want to remove between {1} and {numberOfCellsRemovedMax}? "))
+            if inputCellsChosen < 1 or inputCellsChosen > numberOfCellsRemovedMax:
+                raise ValueError('Error in the input to select the number of cells to remove')
+            
+            gridChosen = gridsCellsRemoved[inputCellsChosen-1]
+            print("Your final sudoku is:")
+            PrintSudokuInfo(gridSize, gridChosen)
+            print("Your final sudoku in file format is:")
+            PrintSudokuInfoFile(gridSize, gridChosen)
         except Exception as e:
             print(e)
 

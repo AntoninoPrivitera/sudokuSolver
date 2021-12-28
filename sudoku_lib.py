@@ -2,13 +2,7 @@ from typing import List
 import math
 from z3 import * #install it through the command: pip install z3-solver
 import time
-from enum import Enum
 import random
-
-class Difficulty(Enum):
-    EASY = 1
-    MEDIUM = 2
-    HARD = 3
 
 GRID_SIZE = [4, 9, 16, 25]
 
@@ -40,12 +34,12 @@ def ImportSudokuData(filePath: str):
     return gridSize, grid
 
 def PrintSudokuInfo(gridSize: int, grid: List[List[int]]):
-    n_digits = len(str(gridSize))
+    nDigits = len(str(gridSize))
     __CheckGridSize(gridSize)
     subGridSize = int(math.sqrt(gridSize))
     for i in range(gridSize):
         for j in range(gridSize):
-            val = str(grid[i][j]).zfill(n_digits) if grid[i][j] > 0 else "-"*n_digits
+            val = str(grid[i][j]).zfill(nDigits) if grid[i][j] > 0 else "-"*nDigits
             print(val, end= " " if (j+1)%subGridSize else "  ")
         print(end= "\n" if (i+1)%subGridSize else "\n\n")
 
@@ -70,8 +64,7 @@ def SudokuSolveZ3(gridSize: int, grid: List[List[int]]):
 
     print("--- computation time: %s seconds ---" % (time.time() - start_time))
 
-def __SudokuZ3Solver(gridSize: int, grid: List[List[int]]):
-    __CheckGridSize(gridSize)
+def __SudokuZ3Contraints(gridSize: int, grid: List[List[int]]):
     subGridSize = int(math.sqrt(gridSize))
 
     #MY VARIABLES
@@ -85,6 +78,12 @@ def __SudokuZ3Solver(gridSize: int, grid: List[List[int]]):
     submatrix = [ Distinct([ X[subGridSize*i0 + i][subGridSize*j0 + j] for i in range(subGridSize) for j in range(subGridSize) ]) for i0 in range(subGridSize) for j0 in range(subGridSize) ] # each submatrix subGridSizexsubGridSize has each number unique
     instance = [ If(grid[i][j] == 0, True, X[i][j] == grid[i][j]) for i in range(gridSize) for j in range(gridSize) ] # problem instance constraints
     sudoku = cells + rows + columns + submatrix + instance # sudoku constraints
+    return (X, sudoku)
+
+def __SudokuZ3Solver(gridSize: int, grid: List[List[int]]):
+    __CheckGridSize(gridSize)
+
+    X, sudoku = __SudokuZ3Contraints(gridSize, grid)
 
     #SOLVER
     s = Solver()
@@ -98,33 +97,33 @@ def __SudokuZ3Solver(gridSize: int, grid: List[List[int]]):
 
 
 def SudokuSolveBacktracking(gridSize: int, grid: List[List[int]]):
-    start_time = time.time()
+    startTime = time.time()
 
     __CheckGridSize(gridSize)
 
-    grid_sol = copy.deepcopy(grid) #I duplicate my grid in order to not make changes on the original one
-    result = __SudokuSolveBacktrackingRecursive(gridSize, grid_sol, 0 , 0)
+    gridSol = copy.deepcopy(grid) #I duplicate my grid in order to not make changes on the original one
+    result = __SudokuSolveBacktrackingRecursive(gridSize, gridSol, 0 , 0)
     if result:
-        PrintSudokuInfo(gridSize, grid_sol)
+        PrintSudokuInfo(gridSize, gridSol)
     else:
         print("impossible to find a solution!")
 
-    print("--- computation time: %s seconds ---" % (time.time() - start_time))
+    print("--- computation time: %s seconds ---" % (time.time() - startTime))
 
     return result
 
 
 def __SudokuSolveBacktrackingRecursive(gridSize: int, grid: List[List[int]], x: int, y: int, shuffle: bool = False):
-    values_available = list(range(1, gridSize+1))
+    valuesAvailable = list(range(1, gridSize+1))
     if shuffle:
-        random.shuffle(values_available)
+        random.shuffle(valuesAvailable)
 
     i = x
     j = y
     while i < gridSize:
         while j < gridSize:
             if(grid[i][j] == 0):
-                for val in values_available:
+                for val in valuesAvailable:
                     if __checkSudokuConditionBacktracking(gridSize, grid, i, j, val):
                         grid[i][j] = val
                         next_i = i if j < gridSize - 1 else i+1
@@ -165,73 +164,80 @@ def __checkSudokuConditionBacktracking(gridSize: int, grid: List[List[int]], x, 
     return True
 
 
-def GenerateSudoku(gridSize: int, difficulty: Difficulty):
+def GenerateSudoku(gridSize: int, isZ3: bool = True):
+    startTime = time.time()
+
     __CheckGridSize(gridSize)
-    print(f"Sudoku with grid size {gridSize} and difficulty {difficulty.name}")
+    print(f"Sudoku with grid size {gridSize}")
 
-    grid = [ [ 0 for j in range(gridSize) ] for i in range(gridSize) ]
-
-    __FillIndependedSudokuSubGrids(gridSize, grid)
+    grid = __FillIndependedSudokuSubGrids(gridSize)
 
     #generate other cells if possible
-    grid = __SudokuZ3Solver(gridSize, grid)
-    #__SudokuSolveBacktrackingRecursive(gridSize, grid, 0, 0, True)
-    #__FillSudokuGridCellsRecursive(gridSize, grid, 0, 0)
-    #__RemoveSudokuGridCells(gridSize, grid, difficulty)
-    print("Your sudoku is:")
-    PrintSudokuInfo(gridSize, grid)
-    print("Your sudoku in file format is:")
-    PrintSudokuInfoFile(gridSize, grid)
+    if isZ3:
+        grid = __SudokuZ3Solver(gridSize, grid)
+        while grid == False:
+          grid =  __SudokuZ3Solver(gridSize, __FillIndependedSudokuSubGrids(gridSize))
+    else:
+        result = __SudokuSolveBacktrackingRecursive(gridSize, grid, 0, 0, True)
+        while result == False:
+            result = __SudokuSolveBacktrackingRecursive(gridSize, __FillIndependedSudokuSubGrids(gridSize), 0, 0, True)
 
-def __FillIndependedSudokuSubGrids(gridSize: int, grid: List[List[int]]):
+    print("Your sudoku solved is:")
+    PrintSudokuInfo(gridSize, grid)
+
+    print("Removing cells with 5 attempts...")
+    gridsCellsRemoved = __RemoveSudokuGridCells(gridSize, grid)
+
+    print("--- computation time: %s seconds ---" % (time.time() - startTime))
+    return gridsCellsRemoved
+
+def __FillIndependedSudokuSubGrids(gridSize: int):
+    grid = [ [ 0 for j in range(gridSize) ] for i in range(gridSize) ]
     subGridSize = int(math.sqrt(gridSize))
     colSubGridIndex = list(range(0, subGridSize))
     random.shuffle(colSubGridIndex)
 
     for subgridRowIndex in range(0, subGridSize):
-        values_available = list(range(1, gridSize+1))
+        valuesAvailable = list(range(1, gridSize+1))
         firstRow = subgridRowIndex*subGridSize
         firstCol = colSubGridIndex[subgridRowIndex]*subGridSize
         for i in range(firstRow,  firstRow+subGridSize):
             for j in range(firstCol, firstCol+subGridSize):
-                val = random.choice(values_available)
+                val = random.choice(valuesAvailable)
                 grid[i][j] = val
-                values_available.remove(val)     
+                valuesAvailable.remove(val)
+    return grid
 
-def __FillSudokuGridCellsRecursive(gridSize: int, grid: List[List[int]], x: int, y: int):
-    values_available = list(range(1, gridSize+1))
-    random.shuffle(values_available)
-    i = x
-    j = y
-    while i < gridSize:
-        while j < gridSize:
-            if(grid[i][j] == 0):
-                for val in values_available:
-                    if __checkSudokuConditionBacktracking(gridSize, grid, i, j, val):
-                        grid[i][j] = val
-                        result = __SudokuSolveBacktrackingRecursive(gridSize, copy.deepcopy(grid), 0 , 0) #copy.deepcopy(grid) used to duplicate my grid in order to not make changes on the original one
-
-                        if(result):
-                            next_i = i if j < gridSize - 1 else i+1
-                            next_j = (j+1)%gridSize                        
-                            if __FillSudokuGridCellsRecursive(gridSize, grid, next_i, next_j):
-                                return True
-                grid[i][j] = 0
-                return False
-            j += 1
-        i += 1
-        j = 0
-    return True
-
-def __FindNumberOfSolutions(gridSize: int, grid: List[List[int]]):
+def __HasSudokuMultipleSolutions(gridSize: int, grid: List[List[int]], gridFilled: List[List[int]]):
+    X, sudoku = __SudokuZ3Contraints(gridSize, grid)
+    s = Solver()
+    s.add(sudoku)
     for i in range(0, gridSize):
         for j in range(0, gridSize):
-            print("")
+            if grid[i][j] == 0:
+                s.push()
+                s.add(X[i][j] != gridFilled[i][j])
+                if s.check() == sat: #s.check() returns "sat" if the solver found a solution
+                    return True
+                s.pop()
 
-def __RemoveSudokuGridCells(gridSize: int, grid: List[List[int]], difficulty: Difficulty):
+def __RemoveSudokuGridCells(gridSize: int, grid: List[List[int]]):
+    gridFilled = copy.deepcopy(grid)
+    attempts = 5
+    gridsCellsRemoved = []
     cells = list(range(0, gridSize*gridSize))
     random.shuffle(cells)
     for cell in cells:
         row = math.floor(cell/gridSize)
         col = cell % gridSize
-    print(" ")
+        backupVal = grid[row][col]
+        grid[row][col] = 0
+        if __HasSudokuMultipleSolutions(gridSize, grid, gridFilled):
+            grid[row][col] = backupVal
+            if attempts > 0:
+                attempts-=1
+            else:
+                break
+        else:
+            gridsCellsRemoved.append(copy.deepcopy(grid))
+    return gridsCellsRemoved
