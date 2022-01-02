@@ -29,8 +29,8 @@ while True:
         print("You selected 2 to generate a sudoku")
         try:            
             print("Choose a solver to fill your sudoku")
-            inputFillerType = input("Do you want to use z3 (1) or backtracking (2)? ")
-            if inputFillerType != "1" and inputFillerType != "2":
+            inputFillerType = input("Do you want to use z3 (1 - default) or backtracking (2)? ")
+            if inputFillerType != "" and inputFillerType != "1" and inputFillerType != "2":
                 raise ValueError('Error in the input to select solver as filler')
 
             print("Grid size available:")
@@ -39,7 +39,7 @@ while True:
             print("16 - 16x16")
             print("25 - 25x25")
             gridSize = int(input("Choose the grid size:"))
-            gridsCellsRemoved = GenerateSudoku(gridSize, True if inputFillerType == "1" else False)
+            gridsCellsRemoved = GenerateSudoku(gridSize, True if inputFillerType == "1" or inputFillerType == "" else False)
             numberOfCellsRemovedMax = len(gridsCellsRemoved)
             print(f"Number of cells removed are {numberOfCellsRemovedMax} after 5 attempts.")
             inputCellsChosen = int(input(f"How many cells do you want to remove between {1} and {numberOfCellsRemovedMax}? "))
