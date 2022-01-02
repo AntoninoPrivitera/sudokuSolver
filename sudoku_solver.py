@@ -8,10 +8,10 @@ while True:
     value = input("Please enter a number to run the command: ")
     if value == "1":
         print("You selected 1 to solve a sudoku from a file")
-        filename = input("Please add the file name which contains your sudoku (empty if you want to use sudoku_data.txt as default): ")
+        filename = input("Please add the file name which contains your sudoku (empty if you want to use 9x9.txt as default): ")
         
         try:
-            gridSize, grid = ImportSudokuData("sudoku_data.txt" if filename == "" else filename)
+            gridSize, grid = ImportSudokuData("9x9.txt" if filename == "" else filename)
 
             print("your file contains the following sudoku to solve:")
             PrintSudokuInfo(gridSize, grid)
