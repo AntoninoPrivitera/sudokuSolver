@@ -210,16 +210,13 @@ def __FillIndependedSudokuSubGrids(gridSize: int):
 
 def __HasSudokuMultipleSolutions(gridSize: int, grid: List[List[int]], gridFilled: List[List[int]]):
     X, sudoku = __SudokuZ3Contraints(gridSize, grid)
+    constraintMultipleSolutions = Or([ X[i][j] != gridFilled[i][j] for i in range(0, gridSize) for j in range(0, gridSize) if grid[i][j] == 0]) #needed to know if there is another solution besides the main one
     s = Solver()
     s.add(sudoku)
-    for i in range(0, gridSize):
-        for j in range(0, gridSize):
-            if grid[i][j] == 0:
-                s.push()
-                s.add(X[i][j] != gridFilled[i][j])
-                if s.check() == sat: #s.check() returns "sat" if the solver found a solution
-                    return True
-                s.pop()
+    s.add(constraintMultipleSolutions)
+    if s.check() == sat: #s.check() returns "sat" if the solver found a solution
+        return True
+    return False
 
 def __RemoveSudokuGridCells(gridSize: int, grid: List[List[int]]):
     gridFilled = copy.deepcopy(grid)
