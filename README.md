@@ -4,16 +4,16 @@
 
 The solver should be able to take as input a file containing
 
-n
-XXX XXX XXX
-XXX XXX XXX
-XXX XXX XXX
-XXX XXX XXX
-XXX XXX XXX
-XXX XXX XXX
-XXX XXX XXX
-XXX XXX XXX
-XXX XXX XXX
+n  
+XXX XXX XXX  
+XXX XXX XXX  
+XXX XXX XXX  
+XXX XXX XXX  
+XXX XXX XXX  
+XXX XXX XXX  
+XXX XXX XXX  
+XXX XXX XXX  
+XXX XXX XXX  
 
 where n is the size of the grid (e.g. 9 for a n x n grid; n must be 4, 9, 16, 25).
 Ignore whitespace and blank lines.
@@ -34,5 +34,4 @@ This is really not difficult.
 - hardness (which seems to be the amount of backtracking needed for solving).
 
 ## Sources
-- Project description
-  - [Project description](report.pdf)
+[Project report](report.pdf)
