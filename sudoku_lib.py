@@ -164,7 +164,7 @@ def __checkSudokuConditionBacktracking(gridSize: int, grid: List[List[int]], x, 
     return True
 
 
-def GenerateSudoku(gridSize: int, isZ3: bool = True):
+def GenerateSudoku(gridSize: int, isZ3: bool = True, attempts: int = 5):
     startTime = time.time()
 
     __CheckGridSize(gridSize)
@@ -172,7 +172,7 @@ def GenerateSudoku(gridSize: int, isZ3: bool = True):
 
     grid = __FillIndependedSudokuSubGrids(gridSize)
 
-    #generate other cells if possible
+    #generate other cells if possible, otherwise repeat until the whole Sudoku is solved
     if isZ3:
         grid = __SudokuZ3Solver(gridSize, grid)
         while grid == False:
@@ -185,8 +185,8 @@ def GenerateSudoku(gridSize: int, isZ3: bool = True):
     print("Your sudoku solved is:")
     PrintSudokuInfo(gridSize, grid)
 
-    print("Removing cells with 5 attempts...")
-    gridsCellsRemoved = __RemoveSudokuGridCells(gridSize, grid)
+    print(f"Removing cells with {attempts} attempts...")
+    gridsCellsRemoved = __RemoveSudokuGridCells(gridSize, grid, attempts)
 
     print("--- computation time: %s seconds ---" % (time.time() - startTime))
     return gridsCellsRemoved
@@ -218,9 +218,8 @@ def __HasSudokuMultipleSolutions(gridSize: int, grid: List[List[int]], gridFille
         return True
     return False
 
-def __RemoveSudokuGridCells(gridSize: int, grid: List[List[int]]):
+def __RemoveSudokuGridCells(gridSize: int, grid: List[List[int]], attempts: int):
     gridFilled = copy.deepcopy(grid)
-    attempts = 5
     gridsCellsRemoved = []
     cells = list(range(0, gridSize*gridSize))
     random.shuffle(cells)

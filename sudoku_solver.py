@@ -39,9 +39,13 @@ while True:
             print("16 - 16x16")
             print("25 - 25x25")
             gridSize = int(input("Choose the grid size:"))
-            gridsCellsRemoved = GenerateSudoku(gridSize, True if inputFillerType == "1" or inputFillerType == "" else False)
+
+            print("How many attempts do you want to try to remove a new cell and keep the unicity solution?")
+            inputAttempts = input("Type a number between 0 and on (5 is default): ")
+            attempts = 5 if inputAttempts == "" else abs(int(inputAttempts))
+            gridsCellsRemoved = GenerateSudoku(gridSize, True if inputFillerType == "1" or inputFillerType == "" else False, attempts)
             numberOfCellsRemovedMax = len(gridsCellsRemoved)
-            print(f"Number of cells removed are {numberOfCellsRemovedMax} after 5 attempts.")
+            print(f"Number of cells removed are {numberOfCellsRemovedMax} after {attempts} attempts.")
             inputCellsChosen = int(input(f"How many cells do you want to remove between {1} and {numberOfCellsRemovedMax}? "))
             if inputCellsChosen < 1 or inputCellsChosen > numberOfCellsRemovedMax:
                 raise ValueError('Error in the input to select the number of cells to remove')
